@@ -282,7 +282,6 @@ typedef int NatFileTransferDirection;
     }
     [postBodyBeforeFile appendData:[[NSString stringWithFormat:@"Content-Length: %ld\r\n\r\n", (long)[fileData length]] dataUsingEncoding:NSUTF8StringEncoding]];
     
-    NSLog(@"fileData length: %ld", [fileData length]);
     NSData* postBodyAfterFile = [[NSString stringWithFormat:@"\r\n--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding];
     
     long long totalPayloadLength = [fileData length];
@@ -420,7 +419,7 @@ typedef int NatFileTransferDirection;
             NSMutableURLRequest* req = [connection.currentRequest mutableCopy];
             [req setHTTPMethod:@"HEAD"];
             [req setValue:@"identity" forHTTPHeaderField:@"Accept-Encoding"];
-           NSURLConnection *connection = [NSURLConnection connectionWithRequest:req delegate:self];
+           [NSURLConnection connectionWithRequest:req delegate:self];
         }
     } else if ([response.URL isFileURL]) {
         NSDictionary* attr = [[NSFileManager defaultManager] attributesOfItemAtPath:[response.URL path] error:nil];
@@ -555,11 +554,11 @@ typedef int NatFileTransferDirection;
                 
                 NSInteger i = 1;
 //                NSString *filename = [file stringByAppendingFormat:@"(i).%@",type];
-                while ([self ishasFile:[[self.randomPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@(%ld)%@",file,i,type]]) {
+                while ([self ishasFile:[[self.randomPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@(%d)%@",file,i,type]]) {
                     i++;
                 }
                 NSError *error;
-                [[NSFileManager defaultManager] moveItemAtPath:self.randomPath toPath:[[self.randomPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@(%ld)%@",file,i,type] error:&error];
+                [[NSFileManager defaultManager] moveItemAtPath:self.randomPath toPath:[[self.randomPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@(%d)%@",file,i,type] error:&error];
                 if (error) {
                      [[NSFileManager defaultManager] removeItemAtPath:self.randomPath error:nil];
                     self.downloadback(@{@"error":@{@"code":@152000,@"msg":@"DOWNLOAD_INTERNAL_ERROR",@"details":error.localizedDescription}},nil);
