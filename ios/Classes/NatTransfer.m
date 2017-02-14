@@ -552,7 +552,7 @@ typedef int NatFileTransferDirection;
                 NSString *file = [fileArr firstObject];
                 NSString *type = [fileArr lastObject];
                 
-                NSInteger i = 1;
+                int i = 1;
 //                NSString *filename = [file stringByAppendingFormat:@"(i).%@",type];
                 while ([self ishasFile:[[self.randomPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@(%d)%@",file,i,type]]) {
                     i++;
