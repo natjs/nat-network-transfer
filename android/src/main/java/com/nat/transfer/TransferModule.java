@@ -1,4 +1,4 @@
-package com.nat.network_transfer;
+package com.nat.transfer;
 
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
@@ -45,10 +45,10 @@ import java.util.zip.Inflater;
 
 /**
  * Created by xuqinchao on 17/1/23.
- *  Copyright (c) 2017 Nat. All rights reserved.
+ *  Copyright (c) 2017 Instapp. All rights reserved.
  */
 
-public class HLTransferModule{
+public class TransferModule {
 
     private static final int MAX_BUFFER_SIZE = 16 * 1024;
     private static final String LINE_START = "--";
@@ -60,23 +60,23 @@ public class HLTransferModule{
     private String url;
     private String path;
     private String name;
-    private JSONObject header;
-    private JSONObject formData;
     private String mimeType;
     private String method;
+    private JSONObject headers;
+    private JSONObject formData;
 
-    private static volatile HLTransferModule instance = null;
+    private static volatile TransferModule instance = null;
 
-    private HLTransferModule(){
+    private TransferModule(){
         mThreadPool = new ThreadPoolExecutor(10, 20, 3, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(3),
                 new ThreadPoolExecutor.DiscardOldestPolicy());
     }
 
-    public static HLTransferModule getInstance() {
+    public static TransferModule getInstance() {
         if (instance == null) {
-            synchronized (HLTransferModule.class) {
+            synchronized (TransferModule.class) {
                 if (instance == null) {
-                    instance = new HLTransferModule();
+                    instance = new TransferModule();
                 }
             }
         }
@@ -84,27 +84,29 @@ public class HLTransferModule{
         return instance;
     }
 
-    public void download(String s, final HLModuleResultListener listener) {
-        JSONObject jsonObject = null;
-        jsonObject = JSON.parseObject(s);
+    public void download(String s, final ModuleResultListener listener) {
+        JSONObject args = null;
+        args = JSON.parseObject(s);
 
         try {
-            BOUNDARY = HLUtil.getMD5("nat" + new Date().getTime());
+            BOUNDARY = Util.getMD5("nat" + new Date().getTime());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             BOUNDARY = "nat+++++";
         }
 
         String url = "";
-        JSONObject header = null;
         String target = "";
         String name = null;
-        url = jsonObject.getString("url");
-        header = jsonObject.getJSONObject("headers");
-        target = jsonObject.containsKey("target")?jsonObject.getString("target"):"/nat/download";
-        name = jsonObject.containsKey("name")?jsonObject.getString("name"):"";
+        JSONObject header = null;
+
+        url = args.getString("url");
+        header = args.getJSONObject("headers");
+        target = args.containsKey("target") ? args.getString("target") : "/Instapp/download";
+        name = args.containsKey("name") ? args.getString("name") : "";
+
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            listener.onResult(HLUtil.getError(HLConstant.DOWNLOAD_INVALID_ARGUMENT, HLConstant.DOWNLOAD_INVALID_ARGUMENT_CODE));
+            listener.onResult(Util.getError(Constant.DOWNLOAD_INVALID_ARGUMENT, Constant.DOWNLOAD_INVALID_ARGUMENT_CODE));
             return;
         }
 
@@ -112,6 +114,7 @@ public class HLTransferModule{
         final JSONObject headers = header;
         final Uri targetUri = Uri.parse(target);
         final Uri fileNameUri = Uri.parse(name);
+
         mThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -133,7 +136,7 @@ public class HLTransferModule{
 
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                         // TODO: 17/2/8 Resource not modified: source
-                        listener.onResult(HLUtil.getError("Resource not modified: ", 1));
+                        listener.onResult(Util.getError("Resource not modified: ", 1));
                         return;
                     } else {
                         if (connection.getContentEncoding() == null || connection.getContentEncoding().equalsIgnoreCase("gzip")) {
@@ -184,27 +187,27 @@ public class HLTransferModule{
                 } catch (ProtocolException e) {
                     e.printStackTrace();
                     if (connection != null) connection.disconnect();
-                    listener.onResult(HLUtil.getError(HLConstant.DOWNLOAD_INTERNAL_ERROR, HLConstant.DOWNLOAD_INTERNAL_ERROR_CODE));
+                    listener.onResult(Util.getError(Constant.DOWNLOAD_INTERNAL_ERROR, Constant.DOWNLOAD_INTERNAL_ERROR_CODE));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                     if (connection != null) connection.disconnect();
-                    listener.onResult(HLUtil.getError(HLConstant.DOWNLOAD_INVALID_ARGUMENT, HLConstant.DOWNLOAD_INVALID_ARGUMENT_CODE));
+                    listener.onResult(Util.getError(Constant.DOWNLOAD_INVALID_ARGUMENT, Constant.DOWNLOAD_INVALID_ARGUMENT_CODE));
                 } catch (IOException e) {
                     e.printStackTrace();
                     if (connection != null) connection.disconnect();
-                    listener.onResult(HLUtil.getError(HLConstant.DOWNLOAD_INTERNAL_ERROR, HLConstant.DOWNLOAD_INTERNAL_ERROR_CODE));
+                    listener.onResult(Util.getError(Constant.DOWNLOAD_INTERNAL_ERROR, Constant.DOWNLOAD_INTERNAL_ERROR_CODE));
                 }
             }
         });
 
     }
 
-    public void upload(String s, final HLModuleResultListener listener) {
+    public void upload(String s, final ModuleResultListener listener) {
         JSONObject args = null;
         args = JSON.parseObject(s);
 
         try {
-            BOUNDARY = HLUtil.getMD5("nat" + new Date().getTime());
+            BOUNDARY = Util.getMD5("nat" + new Date().getTime());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             BOUNDARY = "nat+++++";
@@ -213,31 +216,27 @@ public class HLTransferModule{
         url = args.getString("url");
         path = args.getString("path");
         name = args.getString("name");
-        header = args.getJSONObject("headers");
-        formData = args.getJSONObject("formData");
         mimeType = args.getString("mimeType");
         method = args.containsKey("method") ? args.getString("method") : "POST";
+        headers = args.getJSONObject("headers");
+        formData = args.getJSONObject("formData");
 
         if (TextUtils.isEmpty(name)) {
             String[] split = path.split("/");
             if (split.length < 1) {
-                listener.onResult(HLUtil.getError(HLConstant.UPLOAD_INVALID_ARGUMENT, HLConstant.UPLOAD_INVALID_ARGUMENT_CODE));
+                listener.onResult(Util.getError(Constant.UPLOAD_INVALID_ARGUMENT, Constant.UPLOAD_INVALID_ARGUMENT_CODE));
                 return;
             }
             name = split[split.length - 1];
         }
-
-        name += "Android";
 
         if (TextUtils.isEmpty(mimeType)) {
             FileNameMap fileNameMap = URLConnection.getFileNameMap();
             mimeType = fileNameMap.getContentTypeFor("file://" + path);
         }
 
-
-
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            listener.onResult(HLUtil.getError(HLConstant.UPLOAD_INVALID_ARGUMENT, HLConstant.UPLOAD_INVALID_ARGUMENT_CODE));
+            listener.onResult(Util.getError(Constant.UPLOAD_INVALID_ARGUMENT, Constant.UPLOAD_INVALID_ARGUMENT_CODE));
             return;
         }
 
@@ -257,14 +256,14 @@ public class HLTransferModule{
                     conn.setUseCaches(false);
                     conn.setRequestMethod(method);
 
-                    // if we specified a Content-Type header, don't do multipart form upload
-                    boolean multipartFormUpload = (header == null) || !header.containsKey("Content-Type");
+                    // if we specified a Content-Type headers, don't do multipart form upload
+                    boolean multipartFormUpload = (headers == null) || !headers.containsKey("Content-Type");
                     if (multipartFormUpload) {
                         conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
                     }
                     // Handle the other headers
-                    if (header != null) {
-                        addHeadersToRequest(conn, header);
+                    if (headers != null) {
+                        addHeadersToRequest(conn, headers);
                     }
 
                     StringBuilder beforeData = new StringBuilder();
@@ -386,7 +385,7 @@ public class HLTransferModule{
                 } catch (IOException e) {
                     e.printStackTrace();
                     if (conn != null) conn.disconnect();
-                    listener.onResult(HLUtil.getError(HLConstant.UPLOAD_INTERNAL_ERROR, HLConstant.UPLOAD_INTERNAL_ERROR_CODE));
+                    listener.onResult(Util.getError(Constant.UPLOAD_INTERNAL_ERROR, Constant.UPLOAD_INTERNAL_ERROR_CODE));
                 }
             }
         });
@@ -426,7 +425,7 @@ public class HLTransferModule{
         Random random = new Random();
         float v = random.nextFloat();
         try {
-            fileName = HLUtil.getMD5("nat/transfer/download" + System.currentTimeMillis()) + v;
+            fileName = Util.getMD5("nat/transfer/download" + System.currentTimeMillis()) + v;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             fileName = "nat/transfer/download" + System.currentTimeMillis() + v;

@@ -16,7 +16,7 @@
        specific language governing permissions and limitations
        under the License.
 */
-package com.nat.network_transfer;
+package com.nat.transfer;
 
 import org.json.JSONException;
 import org.json.JSONObject;

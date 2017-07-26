@@ -3,39 +3,39 @@ apply plugin: 'com.jfrog.bintray'
 
 //加载属性文件
 Properties properties = new Properties()
-File localPropertiesFile = project.file("bintray.properties");
+File localPropertiesFile = project.file('../bintray.properties');
 if (localPropertiesFile.exists()) {
     properties.load(localPropertiesFile.newDataInputStream())
 }
-File projectPropertiesFile = project.file("project.properties");
+File projectPropertiesFile = project.file('project.properties');
 if (projectPropertiesFile.exists()) {
     properties.load(projectPropertiesFile.newDataInputStream())
 }
 
 //读取属性
-def projectRepositoryName = properties.getProperty("project.repositoryName")
-def projectName = properties.getProperty("project.name")
-def projectGroupId = properties.getProperty("project.groupId")
-def projectArtifactId = properties.getProperty("project.artifactId")
+def projectRepositoryName = properties.getProperty('project.repositoryName')
+def projectName = properties.getProperty('project.name')
+def projectGroupId = properties.getProperty('project.groupId')
+def projectArtifactId = properties.getProperty('project.artifactId')
 def projectVersionName = android.defaultConfig.versionName
-def projectPackaging = properties.getProperty("project.packaging")
-def projectSiteUrl = properties.getProperty("project.siteUrl")
-def projectGitUrl = properties.getProperty("project.gitUrl")
+def projectPackaging = properties.getProperty('project.packaging')
+def projectSiteUrl = properties.getProperty('project.siteUrl')
+def projectGitUrl = properties.getProperty('project.gitUrl')
 
-def developerId = properties.getProperty("developer.id")
-def developerName = properties.getProperty("developer.name")
-def developerEmail = properties.getProperty("developer.email")
+def developerId = properties.getProperty('developer.id')
+def developerName = properties.getProperty('developer.name')
+def developerEmail = properties.getProperty('developer.email')
 
-def bintrayUser = properties.getProperty("bintray.user")
-def bintrayApikey = properties.getProperty("bintray.apiKey")
-// def bintrayOrganizationId = properties.getProperty("bintray.organizationId");
+def bintrayUser = properties.getProperty('bintray.user')
+def bintrayApikey = properties.getProperty('bintray.apiKey')
+// def bintrayOrganizationId = properties.getProperty('bintray.organizationId');
 
-def javadocName = properties.getProperty("javadoc.name")
+def javadocName = properties.getProperty('javadoc.name')
 
 /*
 *这句代码一定要加否则会出现如下错误
-* Could not upload to 'https://api.bintray.com/content/coolcode/maven/LibUiBase/1.0.0/CommonLibrary/LibUiBase/1.0.0/LibUiBase-1.0.0.pom': HTTP/1.1 400 Bad Request [
-message:Unable to upload files: Maven group, artifact or version defined in the pom file do not match the file path 'CommonLibrary/LibUiBase/1.0.0/LibUiBase-1.0.0.p
+* Could not bintrayUpload to 'https://api.bintray.com/content/coolcode/maven/LibUiBase/1.0.0/CommonLibrary/LibUiBase/1.0.0/LibUiBase-1.0.0.pom': HTTP/1.1 400 Bad Request [
+message:Unable to bintrayUpload files: Maven group, artifact or version defined in the pom file do not match the file path 'CommonLibrary/LibUiBase/1.0.0/LibUiBase-1.0.0.p
 om']
 * */
 group = projectGroupId
@@ -99,11 +99,11 @@ artifacts {
 //javadoc的配置
 javadoc {
     options {
-        encoding "UTF-8"
+        encoding 'UTF-8'
         charSet 'UTF-8'
         author true
         version projectVersionName
-        links "http://docs.oracle.com/javase/7/docs/api"
+        links 'http://docs.oracle.com/javase/7/docs/api'
         title javadocName
     }
 }
@@ -119,7 +119,7 @@ bintray {
         name = projectName
         websiteUrl = projectSiteUrl
         vcsUrl = projectGitUrl
-        licenses = ["MIT"]
+        licenses = ['MIT']
         publish = true
     }
 }
