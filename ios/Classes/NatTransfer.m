@@ -208,7 +208,7 @@ typedef int NatFileTransferDirection;
     //    BOOL trustAllHosts = [[command argumentAtIndex:6 withDefault:[NSNumber numberWithBool:YES]] boolValue]; // allow self-signed certs
     NSDictionary* headers = params[@"header"];
     NSDictionary *formData = params[@"formData"];
-    formData = @{@"name":@"huang",@"gender":@"man",@"platform":@"iOS"};
+
     if (params[@"filename"]) {
         filename = params[@"filename"];
     }
