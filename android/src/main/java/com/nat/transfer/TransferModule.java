@@ -221,6 +221,10 @@ public class TransferModule {
         headers = args.getJSONObject("headers");
         formData = args.getJSONObject("formData");
 
+        if (path.startsWith("file://")) {
+            path = path.replaceFirst("^file://", "");
+        }
+
         if (TextUtils.isEmpty(name)) {
             String[] split = path.split("/");
             if (split.length < 1) {
