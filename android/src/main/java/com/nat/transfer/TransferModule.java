@@ -482,29 +482,11 @@ public class TransferModule {
     }
 
     private static void addHeadersToRequest(URLConnection connection, JSONObject headers) {
-        try {
-            for (Map.Entry<String, Object> entry : headers.entrySet()) {
-                String headerKey = entry.getKey();
-                String cleanHeaderKey = headerKey.replaceAll("\\n", "")
-                        .replaceAll("\\s+", "")
-                        .replaceAll(":", "")
-                        .replaceAll("[^\\x20-\\x7E]+", "");
+        for (Map.Entry<String, Object> entry : headers.entrySet()) {
+            String headerKey = entry.getKey().replaceAll("\\s+", "").replaceAll("[^\\x20-\\x7E]+", "");
+            String headerValue = entry.getValue().toString();
 
-                JSONArray headerValues = new JSONArray();
-                if (headerValues == null) {
-                    headerValues = new JSONArray();
-                    String headerValue = null;
-                    String finalValue = headerValue.replaceAll("\\s+", " ").replaceAll("\\n", " ").replaceAll("[^\\x20-\\x7E]+", " ");
-                    headerValues.put(finalValue);
-                }
-
-                connection.setRequestProperty(cleanHeaderKey, headerValues.getString(0));
-                for (int i = 1; i < headerValues.length(); ++i) {
-                    connection.addRequestProperty(headerKey, headerValues.getString(i));
-                }
-            }
-        } catch (JSONException e1) {
-            // No headers to be manipulated!
+            connection.setRequestProperty(headerKey, headerValue);
         }
     }
 
